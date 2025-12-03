@@ -1,0 +1,216 @@
+<%-layout('layout/boilerplate.ejs')%>
+<body class="bg-light">
+    <script>
+// Custom validation for electives
+document.querySelector('form').addEventListener('submit', function(e) {
+  const professional = document.querySelector('input[name="professional"]:checked');
+  const open = document.querySelector('input[name="open"]:checked');
+
+  // Reset previous warnings
+  document.querySelectorAll('.course-card').forEach(card => {
+    card.classList.remove('border-danger', 'shadow-danger');
+  });
+  document.querySelectorAll('.validation-text').forEach(el => el.remove());
+
+  let isValid = true;
+
+  // Validate Professional elective
+  if (!professional) {
+    const section = document.querySelector('input[name="professional"]').closest('section');
+    const cardList = section.querySelectorAll('.course-card');
+    cardList.forEach(card => card.classList.add('border-danger', 'shadow-danger'));
+
+    const warning = document.createElement('div');
+    warning.className = 'text-danger mt-2 validation-text fw-semibold small';
+    warning.innerHTML = '⚠️ Please select one <strong>Professional Elective</strong>.';
+    section.appendChild(warning);
+
+    isValid = false;
+  }
+
+  // Validate Open elective
+  if (!open) {
+    const section = document.querySelector('input[name="open"]').closest('section');
+    const cardList = section.querySelectorAll('.course-card');
+    cardList.forEach(card => card.classList.add('border-danger', 'shadow-danger'));
+
+    const warning = document.createElement('div');
+    warning.className = 'text-danger mt-2 validation-text fw-semibold small';
+    warning.innerHTML = '⚠️ Please select one <strong>Open Elective</strong>.';
+    section.appendChild(warning);
+
+    isValid = false;
+  }
+
+  if (!isValid) {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+});
+
+// Add hover and checked highlight styles
+document.querySelectorAll('.radio-card input').forEach(input => {
+  input.addEventListener('change', () => {
+    const group = input.name;
+    document.querySelectorAll(`input[name="${group}"] + .card`).forEach(card => {
+      card.classList.remove('border-warning', 'shadow-warning');
+    });
+    input.nextElementSibling.classList.add('border-warning', 'shadow-warning');
+  });
+});
+</script>
+
+<style>
+.course-card {
+  transition: all 0.25s ease;
+  border-radius: 12px;
+}
+.course-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.08);
+}
+.border-danger {
+  border-color: #dc3545 !important;
+}
+.border-warning {
+  border-color: #ffc107 !important;
+}
+.shadow-warning {
+  box-shadow: 0 0 12px rgba(255, 193, 7, 0.4) !important;
+}
+.shadow-danger {
+  box-shadow: 0 0 12px rgba(220, 53, 69, 0.4) !important;
+}
+</style>
+
+
+    <!-- Main Content -->
+    <div class="container py-4">
+        <div class="mb-4">
+            <h2 class="display-6 fw-bold text-dark mb-2">Course Registration</h2>
+            <p class="text-muted">Select your elective courses for the semester</p>
+        </div>
+
+        <form action="/subject-registration" method="POST" class="course-validation" novalidate>
+            <!-- Core Subjects -->
+            <section class="mb-5">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <svg class="text-danger" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                    </svg>
+                    <h3 class="h5 mb-0 fw-bold">Core Subjects</h3>
+                    <span class="badge bg-secondary">All Mandatory</span>
+                </div>
+           <div class="row g-3">
+    <% CoreSubjects.forEach(subject => { %>
+        <div class="col-md-6">
+            <div class="card course-card course-card-mandatory border-2">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <h5 class="card-title mb-0 fw-semibold"><%= subject.name %></h5>
+                                <span class="badge bg-danger-subtle text-danger">Mandatory</span>
+                            </div>
+                            <p class="card-text text-muted mb-1 small">Code: <%= subject.code %></p>
+                            <p class="card-text text-muted mb-0 small">Credits: <%= subject.credits %></p>
+                        </div>
+                        <div class="checkmark-icon">
+                            <svg width="16" height="16" fill="white" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <% }) %>
+</div>
+
+            </section>
+
+            <!-- Professional Electives -->
+            <section class="mb-5">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <svg class="text-primary" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="8" r="7"></circle>
+                        <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+                    </svg>
+                    <h3 class="h5 mb-0 fw-bold">Professional Electives</h3>
+                    <span class="badge bg-primary">Select 1 subject</span>
+                </div>
+                <div class="row g-3">
+<div class="row g-3">
+    <div class="valid-feedback">
+                                Looks good!
+                            </div>
+    <% ProfessionElectives.forEach(subject => { %>
+        <div class="col-md-6">
+            <label class="radio-card w-100">
+                <input  type="radio" name="professional" value="<%= subject.code %>" class="position-absolute opacity-0" required>
+                
+                <div class="card course-card border-2">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <h5 class="card-title mb-2 fw-semibold"><%= subject.name %></h5>
+                                <p class="card-text text-muted mb-1 small">Code: <%= subject.code %></p>
+                                <p class="card-text text-muted mb-0 small">Credits: <%= subject.credits %></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </label>
+        </div>
+    <% }) %>
+</div>
+
+            </section>
+
+            <!-- Open Electives -->
+            <section class="mb-5">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <svg class="text-warning" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                    </svg>
+                    <h3 class="h5 mb-0 fw-bold">Open Electives</h3>
+                    <span class="badge bg-warning text-dark">Select 1 subject</span>
+                </div>
+<div class="row g-3">
+    <div class="valid-feedback">
+                                Looks good!
+                            </div>
+    <% OpenElectives.forEach(subject => { %>
+        <div class="col-md-6">
+            <label class="radio-card w-100">
+               
+                <input type="radio" name="open" value="<%= subject.code %>" class="position-absolute opacity-0" required>
+                
+                <div class="card course-card border-2">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <h5 class="card-title mb-2 fw-semibold"><%= subject.name %></h5>
+                                <p class="card-text text-muted mb-1 small">Code: <%= subject.code %></p>
+                                <p class="card-text text-muted mb-0 small">Credits: <%= subject.credits %></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </label>
+        </div>
+    <% }) %>
+</div>
+
+            </section>
+
+            <!-- Submit Button -->
+            <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn-primary btn-lg px-5">
+                    Register Courses
+                </button>
+            </div>
+        </form>
+    </div>
+
